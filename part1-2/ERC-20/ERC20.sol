@@ -35,7 +35,25 @@ contract TestToken is ERC20 {
             _balances[to] += amount;
         }
         emit Transfer(from, to, amount);
-        return true
+        return true;
+    }
+
+    function _mint(address account, uint256 amount) internal virtual {
+        unchecked {
+            _totalSupply += amount;
+            _balances[account] += amount;
+        }
+    }
+
+    function _burn(address account, uint256 amount) internal virtual {
+        unchecked {
+             _totalSupply -= amount;
+            _balances[account] -= amount;
+        }
+    }
+
+    function _approve(address owner, address spender, uint256 amount) internal virtual {
+        _allowances[owner][spender] = amount;
     }
 
 }
