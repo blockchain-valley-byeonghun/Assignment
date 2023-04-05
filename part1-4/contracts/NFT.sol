@@ -10,7 +10,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 contract NFT is ERC721Enumerable, Ownable {
     string public metadataURI; // contructor로 설정될 메타데이터 주소
     string public groupName = "blockchainValley";
-    uint256 MINT_AMOUNT = 10; // 한번에 10번 민팅하는 요구사항 충족을 위함
+    uint256 MINT_AMOUNT = 10; // 한번에 10번 민팅하는 요구사항 충족을 위함 ( 상수 )
     uint256 cost = 1 ether; // 가격 1 ether (klay) 로 설정
     uint256 specialCost = 2 ether; // 조직이 발급해주는 명함 비용
     uint256 registerFee = 2 ether; // 조직 등록 비용
@@ -55,19 +55,18 @@ contract NFT is ERC721Enumerable, Ownable {
     function mintNft(string memory _name, string memory _group, string memory _job) external payable {
         require(msg.value == cost, "YOU HAVE TO PAY EXACT COST");
         require(!isMintedAddress[msg.sender], "ALREADY MINTED ADDRESS");
-        for(uint i = 0; i <= MINT_AMOUNT;) {
+        for(uint i = 0; i <= MINT_AMOUNT; i++) {
             uint tokenId = totalSupply() + 1;
             _safeMint(msg.sender, tokenId);
             userData[tokenId] = UserData(msg.sender, _name, _group, _job, false);
             emit mint(msg.sender, _name, _group, _job, false);
-            i++; // 가스비 더 적게 발생됨 이유는?
         }
         isMintedAddress[msg.sender] = true; // 10개 모두 민팅되면 해당 주소 minting 불가능
     }
 
     // 명함은 NFT이므로 유저는 타인에게 NFT를 transfer할 수 있습니다.
     function transferNFT(address from, address to, uint256 tokenId) external {
-        require(_isApprovedOrOwner(msg.sender, tokenId), "YOU ARE NOT THE OWNER OF NFT");
+        require(_isApprovedOrOwner(from, tokenId), "YOU ARE NOT THE OWNER OF NFT");
         require(to != address(0), "CAN NOT TRANSFER TO ZERO ADDRESS");
         _transfer(from, to, tokenId);
     }
