@@ -2,7 +2,8 @@ import { ethers } from 'hardhat';
 
 async function main() {
     const Nft = await ethers.getContractFactory('NFT');
-    const contract = await Nft.deploy();
+    const constructorArgs = process.env.METADATA_URL;
+    const contract = await Nft.deploy(constructorArgs);
 
     await contract.deployed();
 
