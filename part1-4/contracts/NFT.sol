@@ -14,7 +14,6 @@ contract NFT is ERC721Enumerable, Ownable {
     uint public cost = 1 ether;
     uint public specialCost = 2 ether;
     uint public registerFee = 2 ether;
-    uint public totSupply;
 
     mapping(address => uint) public mintableAmount;
     mapping(address => bool) public isMintedAddress;
@@ -53,8 +52,7 @@ contract NFT is ERC721Enumerable, Ownable {
         require(msg.value == specialCost, "YOU HAVE TO PAY EXACT COST");
         require(isGroupAddress[msg.sender], "NOT ALLOWED ADDRESS");
         require(mintableAmount[msg.sender] > 0, "YOU ALREADY MINT 10 NFTS");
-        totSupply++;
-        uint tokenId = totSupply;
+        uint tokenId = totalSupply() + 1;
         _safeMint(msg.sender, tokenId);
         mintableAmount[msg.sender] -= 1;
         userData[tokenId] = UserData(msg.sender, _name, groupName, _job, true);
