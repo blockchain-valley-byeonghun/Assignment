@@ -6,14 +6,14 @@ npm install @openzeppelin/contracts
 ```
 
 ## how to use hardhat
+- https://dashboard.alchemy.com/
 ```shell
 export ALCHEMY_API_KEY=
 export GOERLI_PRIVATE_KEY=
 export BAOBAB_PRIVATE_KEY=
 export METADATA_URL=
-npx hardhat test test/~
-npx hardhat complie && npx hardhat run scripts/deploy.ts --network goerli
-npx hardhat complie && npx hardhat run scripts/deploy.ts --network baobab
+npx hardhat run scripts/deploy.ts --network goerli
+npx hardhat run scripts/deploy.ts --network baobab
 ```
 
 - `env` 명령어를 통해 위에 `export` 명령어로 등록한 환경변수를 shell에서 확인할 수 있다
