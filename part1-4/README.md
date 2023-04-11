@@ -19,28 +19,45 @@ npx hardhat complie && npx hardhat run scripts/deploy.ts --network baobab
 - `env` 명령어를 통해 위에 `export` 명령어로 등록한 환경변수를 shell에서 확인할 수 있다
 - 현재는 goerli와 baobab testnet에 컨트랙트를 배포할 수 있다
 
-## 질문
-1. 현재까지 작성된 부분의 코드에서 피드백 주실 게 있는 지 궁금합니다
-   2. e.g. struct를 잘 사용한 건지 .. 등
-2. _safeMint로 수정했는데 정확히 _mint() <-> _safeMint() 차이점을 모르겠습니다
-3. 10개 명함 NFT mint 하는 for loop 를 아래처럼 수정하면 가스비가 적게 나오는지 알고싶습니다
-   ```solidity
-       function mintNft(string memory _name, string memory _group, string memory _job) external payable {
-        require(msg.value == cost, "YOU HAVE TO PAY EXACT COST");
-        require(!isMintedAddress[msg.sender], "ALREADY MINTED ADDRESS");
-        for(uint i = 0; i <= MINT_AMOUNT;) {
-            uint tokenId = totalSupply() + 1;
-            _safeMint(msg.sender, tokenId);
-            userData[tokenId] = UserData(msg.sender, _name, _group, _job, false);
-            emit mint(msg.sender, _name, _group, _job, false);
-            i++;
-        }
-        isMintedAddress[msg.sender] = true; // 10개 모두 민팅되면 해당 주소 minting 불가능
-    }
-   ```
-4. hardhat으로 deploy 할 때 contructor에 값을 넣어주지 못하면 에러가 나서 아래 임시 코드로 해결해서 배포 테스트를 해보긴 했는데, 나중에 문제 없는 코드인지 궁금합니다.
-    ```typescript
-    const constructorArgs = process.env.METADATA_URL;
-    const contract = await Nft.deploy(constructorArgs);
-    ```
-5. [optional] 부분에서 거래소쪽의 기능을 개발하려면 어떻게 해야하는 지 감이 안왔습니다. 
+## 요구사항 정의서
+### 1. Problem
+
+NFT의 가치가 안정적이지 않습니다.
+
+### 2. Solution
+
+개인의 Identity를 NFT로 발행하여, NFT의 가치가 owner의 가치(명성, 영향력 등)을 따라가게 합니다.
+
+### 3. Contract
+
+**3.1 개인**
+
+- 명함 제작에 필요한 유저 정보를 기록합니다.
+   - 유저 이름, 소속 등등
+- 유저는 최초 1회에 한하여 자신의 명함 10장을 mint할 수 있는 권한을 가지게 됩니다.
+- 이후 유저는 `1 ETH (=1 KLAY)` 를 지불하여 자신의 명함 10장을 얻을 수 있습니다.
+   - 명함 발급비용은 `Owner` 가 변경할 수 있습니다.
+   - (Optional) 명함 발급 비용을 ETH(native token) 대신 우리가 자체 발행하는 ERC20으로 받을 수 있습니다.
+- 명함은 NFT이므로 유저는 타인에게 NFT를 transfer할 수 있습니다.
+
+**3.1 조직 [ Organization ]**
+
+- `2 ETH`를 컨트랙트에 예치하면 조직의 권한을 얻을 수 있습니다.
+- 조직에서는 조직에 속한 멤버에게 멤버의 명함을 만들어 줄 수 있습니다.
+   - 이때 유저의 명함에 찍히는 조직은 반드시 명함을 발급해 준 조직이어야 합니다.
+   - 조직이 발급해 주는 개인 명함의 가격 또한 별도로 설정할 수 있습니다.
+
+**3.2 거래소 (Optional)**
+
+- 타인의 명함을 거래할 수 있습니다.
+- 조직은 구성원의 명함을 거래소에 게시할 수 있는 권한이 주어집니다.
+- (Optional) 명함을 경매의 방식으로 거래할 수 있습니다.
+
+### 4. Tip
+
+- 원하는 기능은 마음껏 추가해도 좋습니다.
+- 테스트는 hardhat에서 지원하는 local node를 사용해 보세요.
+   - `npx hardhat node` 를 사용하면 로컬에 노드를 띄울 수 있습니다.
+- (Optional) `Unpgradeable`한 컨트랙트
+- (Optional) 테스트 코드 → 구글링 or ChatGPT의 도움!
+- Typescript 사용 권장
